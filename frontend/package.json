@@ -13,6 +13,7 @@
   "jest": {
     "testEnvironment": "jsdom",
     "setupFilesAfterEnv": ["<rootDir>/__tests__/setup.js"],
+    "testMatch": ["**/__tests__/**/*.test.js"],
     "coveragePathIgnorePatterns": [
       "/node_modules/"
     ]
