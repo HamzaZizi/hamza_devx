@@ -1,3 +1,11 @@
+{{- if .Values.createNamespace}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{.Values.namespace}}
+---
+{{- end}}
+
 {{- if .Values.env.config}}
 apiVersion: v1
 kind: ConfigMap

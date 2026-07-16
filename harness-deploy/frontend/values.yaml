@@ -7,6 +7,8 @@ image: <+artifact.image>
 dockercfg: <+artifact.imagePullSecret>
 
 namespace: <+infra.namespace>
+# Create the namespace as part of the deploy (delegate SA needs cluster RBAC).
+createNamespace: true
 
 # Service Type allow you to specify what kind of service you want.
 # Possible values for ServiceType are:
