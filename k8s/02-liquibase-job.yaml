@@ -1,0 +1,36 @@
+# Runs the Liquibase migration to completion before the backend rolls out.
+# Built from db/Dockerfile - replace <registry>/todo-liquibase:<tag> with
+# the image your Harness build stage pushes.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: todo-liquibase-migrate
+  labels:
+    app: todo-liquibase
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: todo-liquibase
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: liquibase
+          image: <registry>/todo-liquibase:<tag>
+          args:
+            - "update"
+            - "--url=jdbc:postgresql://postgres:5432/todo_db"
+            - "--username=$(DB_USER)"
+            - "--password=$(DB_PASSWORD)"
+          env:
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: todo-config
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: todo-db-secret
+                  key: DB_PASSWORD

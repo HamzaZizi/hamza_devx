@@ -1,0 +1,53 @@
+# Example Harness CD pipeline for this repo.
+# Fill in <account>, <org>, <project>, <connector> IDs for your setup.
+# This assumes: images already built & pushed (e.g. by a CI stage or
+# Harness Build stage using the three Dockerfiles in this repo), and a
+# Kubernetes connector configured in Harness pointing at your cluster.
+pipeline:
+  name: todo-app-deploy
+  identifier: todo_app_deploy
+  projectIdentifier: <project>
+  orgIdentifier: <org>
+  stages:
+    - stage:
+        name: Deploy DB Migration
+        identifier: deploy_migration
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: todo_liquibase
+          environment:
+            environmentRef: <environment>
+            infrastructureDefinitions:
+              - identifier: <infra_id>
+          execution:
+            steps:
+              - step:
+                  name: Apply Migration Job
+                  identifier: apply_migration_job
+                  type: K8sApply
+                  spec:
+                    filePaths:
+                      - k8s/00-configmap-secret.yaml
+                      - k8s/02-liquibase-job.yaml
+    - stage:
+        name: Deploy Backend and Frontend
+        identifier: deploy_app
+        type: Deployment
+        spec:
+          deploymentType: Kubernetes
+          service:
+            serviceRef: todo_app
+          environment:
+            environmentRef: <environment>
+            infrastructureDefinitions:
+              - identifier: <infra_id>
+          execution:
+            steps:
+              - step:
+                  name: Rollout Deployment
+                  identifier: rollout_deployment
+                  type: K8sRollingDeploy
+                  spec:
+                    skipDryRun: false
