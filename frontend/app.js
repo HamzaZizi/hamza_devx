@@ -8,8 +8,8 @@ const input = document.getElementById('todo-input');
 const list = document.getElementById('todo-list');
 const status = document.getElementById('status');
 
-function setStatus(msg, isError = false) {
-  status.textContent = msg;
+function setStatus(message, isError = false) {
+  status.textContent = message;
   status.style.color = isError ? '#c0392b' : '#888';
 }
 
