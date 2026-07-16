@@ -1,0 +1,93 @@
+{{- if .Values.env.config}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{lower .Values.name}}-cm
+data:
+{{.Values.env.config | toYaml | indent 2}}
+---
+{{- end}}
+
+{{- if .Values.env.secrets}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{lower .Values.name}}-secret
+stringData:
+{{.Values.env.secrets | toYaml | indent 2}}
+---
+{{- end}}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{lower .Values.name}}-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{.Values.storage.storageClass}}
+  resources:
+    requests:
+      storage: {{.Values.storage.size}}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{lower .Values.name}}-deployment
+  labels:
+    app: {{lower .Values.name}}
+spec:
+  replicas: {{int .Values.replicas}}
+  selector:
+    matchLabels:
+      app: {{lower .Values.name}}
+  template:
+    metadata:
+      labels:
+        app: {{lower .Values.name}}
+    spec:
+      containers:
+      - name: {{lower .Values.name}}
+        image: {{.Values.image}}
+        ports:
+        - containerPort: {{int .Values.serviceTargetPort}}
+        {{- if or .Values.env.config .Values.env.secrets}}
+        envFrom:
+        {{- if .Values.env.config}}
+        - configMapRef:
+            name: {{lower .Values.name}}-cm
+        {{- end}}
+        {{- if .Values.env.secrets}}
+        - secretRef:
+            name: {{lower .Values.name}}-secret
+        {{- end}}
+        {{- end}}
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+          subPath: postgres
+        readinessProbe:
+          exec:
+            command:
+            - pg_isready
+            - -U
+            - {{.Values.env.config.POSTGRES_USER}}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: postgres-storage
+        persistentVolumeClaim:
+          claimName: {{lower .Values.name}}-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{lower .Values.name}}
+spec:
+  type: {{.Values.serviceType}}
+  ports:
+  - port: {{int .Values.servicePort}}
+    targetPort: {{int .Values.serviceTargetPort}}
+    protocol: TCP
+  selector:
+    app: {{lower .Values.name}}

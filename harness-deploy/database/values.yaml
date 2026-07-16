@@ -1,0 +1,21 @@
+name: postgres
+replicas: 1
+
+image: postgres:16-alpine
+
+namespace: <+infra.namespace>
+
+serviceType: ClusterIP
+servicePort: 5432
+serviceTargetPort: 5432
+
+env:
+  config:
+    POSTGRES_DB: todo_db
+    POSTGRES_USER: todo_user
+  secrets:
+    POSTGRES_PASSWORD: <+secrets.getValue("todo_db_password")>
+
+storage:
+  size: 10Gi
+  storageClass: gp2
