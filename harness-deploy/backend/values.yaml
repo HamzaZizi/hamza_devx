@@ -13,11 +13,18 @@ namespace: <+infra.namespace>
 # ClusterIP | NodePort | LoadBalancer | ExternalName
 serviceType: ClusterIP
 
-sename: <+variable.devx_username>
+# Per-user suffix for service/deployment names. Leave empty for shared deploys.
+# Set only if you also define a matching Harness variable named devx_username.
+sename: ""
 # A Service can map an incoming port to any targetPort.
 # targetPort is where application is listening on inside the container.
 servicePort: 3000
 serviceTargetPort: 3000
+
+# IRSA: the backend pod runs under this ServiceAccount, which must be
+# annotated with eks.amazonaws.com/role-arn for the app's RDS IAM role.
+# (Separate from the delegate's SA/role.) Leave empty to skip.
+serviceAccountName: todo-backend-sa
 
 env:
   config:
@@ -25,9 +32,10 @@ env:
     HARNESS_BUILD: <+pipeline.sequenceId>
     SERVICE_NAME: <+service.name>
     ARTIFACT_VERSION: <+artifact.image>
-    DB_HOST: postgres
+    DB_HOST: <+secrets.getValue("todo_db_host")>
     DB_PORT: "5432"
     DB_NAME: todo_db
     DB_USER: todo_user
-  secrets:
-    DB_PASSWORD: <+secrets.getValue("todo_db_password")>
+    # IAM auth to Aurora — no password stored. Requires IRSA on the pod SA.
+    DB_IAM_AUTH: "true"
+    AWS_REGION: eu-west-2

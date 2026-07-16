@@ -9,6 +9,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@aws-sdk/rds-signer": "^3.600.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "pg": "^8.11.5"
