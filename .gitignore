@@ -1,0 +1,31 @@
+# LOCAL DEVELOPMENT ONLY - DO NOT COMMIT
+local/
+
+# Dependencies (installed via npm/docker)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Test coverage
+coverage/
+
+# Logs
+*.log
+
+# Process IDs
+*.pid
+
+# Environment variables (use .env.example as template)
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

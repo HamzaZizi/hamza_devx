@@ -1,0 +1,20 @@
+{
+  "name": "todo-frontend",
+  "version": "1.0.0",
+  "description": "Simple Todo App Frontend",
+  "scripts": {
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "setupFilesAfterEnv": ["<rootDir>/__tests__/setup.js"],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
+}
